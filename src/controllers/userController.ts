@@ -1,31 +1,21 @@
 import { Request, Response } from 'express';
-import { body } from 'express-validator';
-import User from '../models/User';
+import { UserService } from '../services/userService';
+import { updateUserDto } from '../dto/user.dto';
 import { AuthRequest } from '../types';
 
-export const updateUserValidation = [
-  body('name').optional().trim().isLength({ min: 2, max: 50 }).withMessage('Name must be between 2 and 50 characters'),
-  body('email').optional().isEmail().normalizeEmail().withMessage('Please provide a valid email')
-];
+const userService = new UserService();
+
+export const updateUserValidation = updateUserDto;
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const skip = (page - 1) * limit;
-
-    const users = await User.find().select('-password').skip(skip).limit(limit);
-    const total = await User.countDocuments();
-
-    res.json({
-      users,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
-    });
+    const queryParams = {
+      page: parseInt(req.query.page as string),
+      limit: parseInt(req.query.limit as string)
+    };
+    
+    const result = await userService.getAllUsers(queryParams);
+    res.json(result);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: (error as Error).message });
   }
@@ -33,63 +23,36 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
 export const getUserById = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
-    
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    res.json({ user });
+    const result = await userService.getUserById(req.params.id);
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: (error as Error).message });
+    const message = (error as Error).message;
+    const status = message === 'User not found' ? 404 : 500;
+    res.status(status).json({ message, error: message });
   }
 };
 
 export const updateUser = async (req: AuthRequest, res: Response) => {
   try {
-    const { name, email } = req.body;
-    const userId = req.params.id;
-
-    // Users can only update their own profile unless they're admin
-    if (req.user!.role !== 'admin' && req.user!.id !== userId) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    if (email && email !== user.email) {
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({ message: 'Email already in use' });
-      }
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { ...(name && { name }), ...(email && { email }) },
-      { new: true, runValidators: true }
-    ).select('-password');
-
-    res.json({ message: 'User updated successfully', user: updatedUser });
+    const result = await userService.updateUser(req.params.id, req.body, req.user!.id, req.user!.role);
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: (error as Error).message });
+    const message = (error as Error).message;
+    let status = 500;
+    if (message === 'User not found') status = 404;
+    if (message === 'Access denied') status = 403;
+    if (message === 'Email already in use') status = 400;
+    res.status(status).json({ message, error: message });
   }
 };
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.params.id);
-    
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    await User.findByIdAndDelete(req.params.id);
-    res.json({ message: 'User deleted successfully' });
+    const result = await userService.deleteUser(req.params.id);
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: (error as Error).message });
+    const message = (error as Error).message;
+    const status = message === 'User not found' ? 404 : 500;
+    res.status(status).json({ message, error: message });
   }
 };

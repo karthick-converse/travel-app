@@ -5,7 +5,8 @@ import {
   createPackage,
   updatePackage,
   deletePackage,
-  packageValidation
+  packageValidation,
+  updatePackageValidation
 } from '../controllers/packageController';
 import { authenticate, authorize } from '../middleware/auth';
 import { handleValidationErrors } from '../middleware/validation';
@@ -173,7 +174,7 @@ router.post('/', authenticate, authorize('admin'), packageValidation, handleVali
  *       404:
  *         description: Package not found
  */
-router.put('/:id', authenticate, authorize('admin'), packageValidation, handleValidationErrors, updatePackage);
+router.put('/:id', authenticate, authorize('admin'), updatePackageValidation, handleValidationErrors, updatePackage);
 
 /**
  * @swagger

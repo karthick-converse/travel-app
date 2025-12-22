@@ -5,7 +5,8 @@ import {
   createBooking,
   updateBooking,
   deleteBooking,
-  bookingValidation
+  bookingValidation,
+  updateBookingValidation
 } from '../controllers/bookingController';
 import { authenticate, authorize } from '../middleware/auth';
 import { handleValidationErrors } from '../middleware/validation';
@@ -193,7 +194,7 @@ router.post('/', authenticate, bookingValidation, handleValidationErrors, create
  *       404:
  *         description: Booking not found
  */
-router.put('/:id', authenticate, updateBooking);
+router.put('/:id', authenticate, updateBookingValidation, handleValidationErrors, updateBooking);
 
 /**
  * @swagger
