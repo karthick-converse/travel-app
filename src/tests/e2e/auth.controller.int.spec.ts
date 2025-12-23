@@ -16,7 +16,7 @@ describe("Auth Controller", () => {
     await connectTestDB();
   });
 
-  describe("Auth Controller - Register (Integration)", () => {
+  describe("Auth Controller - Register (E2e)", () => {
     it(" should register a new user successfully", async () => {
       const payload = {
         name: "Karthi",
@@ -43,7 +43,7 @@ describe("Auth Controller", () => {
       expect(res.body.message).toBe("User already exists with this email");
     });
   });
-  describe("Auth Controller - Login (Integration)", () => {
+  describe("Auth Controller - Login (E2e)", () => {
     beforeAll(async () => {
       await connectTestDB();
 
@@ -86,7 +86,7 @@ describe("Auth Controller", () => {
     });
   });
 
-  describe("Auth Controller - Get Profile (Integration)", () => {
+  describe("Auth Controller - Get Profile (E2e)", () => {
     let token: string;
 
     beforeAll(async () => {

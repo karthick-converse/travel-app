@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 jest.setTimeout(20000);
 
-describe("Package Controller - Integration Tests", () => {
+describe("Package Controller - E2e Tests", () => {
   let token: string;
   let packageId: string;
 
