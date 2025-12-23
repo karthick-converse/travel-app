@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
+import bcrypt from 'bcryptjs';
 import { RegisterRequest, LoginRequest, AuthResponse } from '../dto/auth.dto';
 
 export class AuthService {
@@ -8,14 +9,14 @@ export class AuthService {
   }
 
   async register(data: RegisterRequest): Promise<AuthResponse> {
-    const { name, email, password } = data;
+    const { name, email, password, role } = data;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       throw new Error('User already exists with this email');
     }
 
-    const user = new User({ name, email, password });
+    const user = new User({ name, email, password, role: role || 'user' });
     await user.save();
 
     const token = this.generateToken(user._id.toString());
@@ -34,13 +35,12 @@ export class AuthService {
 
   async login(data: LoginRequest): Promise<AuthResponse> {
     const { email, password } = data;
-
     const user = await User.findOne({ email });
     if (!user) {
       throw new Error('Invalid credentials');
     }
 
-    const isMatch = await user.comparePassword(password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw new Error('Invalid credentials');
     }
