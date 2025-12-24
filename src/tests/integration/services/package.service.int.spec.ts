@@ -1,21 +1,17 @@
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
 import { PackageService } from "../../../services/packageService";
 import Package from "../../../models/Package";
+import { connectTestDB, closeTestDB } from "../../setup/db";
 
 describe("PackageService Integration Tests", () => {
-  let mongoServer: MongoMemoryServer;
   let packageService: PackageService;
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
-    await mongoose.connect(mongoUri);
+    await connectTestDB();
   });
 
   afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    await closeTestDB();
   });
 
   beforeEach(async () => {
@@ -289,7 +285,9 @@ describe("PackageService Integration Tests", () => {
     });
 
     it("should throw error with invalid ObjectId format", async () => {
-      await expect(packageService.getPackageById("invalid-id")).rejects.toThrow();
+      await expect(
+        packageService.getPackageById("invalid-id")
+      ).rejects.toThrow();
     });
 
     it("should return complete package details", async () => {
@@ -474,7 +472,9 @@ describe("PackageService Integration Tests", () => {
     });
 
     it("should throw error with invalid ObjectId format", async () => {
-      await expect(packageService.deletePackage("invalid-id")).rejects.toThrow();
+      await expect(
+        packageService.deletePackage("invalid-id")
+      ).rejects.toThrow();
     });
 
     it("should completely remove package from database", async () => {

@@ -7,21 +7,18 @@ import {
   beforeEach,
 } from "@jest/globals";
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
 import jwt from "jsonwebtoken";
 import { AuthService } from "../../../services/authService";
 import User from "../../../models/User";
 import { RegisterRequest, LoginRequest } from "../../../dto/auth.dto";
+import { closeTestDB, connectTestDB } from "../../setup/db";
 
 describe("AuthService Integration Tests", () => {
-  let mongoServer: MongoMemoryServer;
   let authService: AuthService;
 
   beforeAll(async () => {
     // Setup in-memory MongoDB
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
-    await mongoose.connect(mongoUri);
+    await connectTestDB();
 
     // Set JWT secret for testing
     process.env.JWT_SECRET = "test-secret-key";
@@ -30,8 +27,7 @@ describe("AuthService Integration Tests", () => {
   });
 
   afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    await closeTestDB();
   });
 
   beforeEach(async () => {

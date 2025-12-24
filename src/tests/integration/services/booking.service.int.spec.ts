@@ -5,23 +5,20 @@ import Booking from "../../../models/Booking";
 import Package from "../../../models/Package";
 import User from "../../../models/User";
 import { UpdateBookingRequest } from "../../../dto/booking.dto";
+import { connectTestDB, closeTestDB } from "../../setup/db";
 
 describe("BookingService Integration Tests", () => {
-  let mongoServer: MongoMemoryServer;
   let bookingService: BookingService;
   let testUser: any;
   let adminUser: any;
   let testPackage: any;
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
-    await mongoose.connect(mongoUri);
+    await connectTestDB();
   });
 
   afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    await closeTestDB();
   });
 
   beforeEach(async () => {

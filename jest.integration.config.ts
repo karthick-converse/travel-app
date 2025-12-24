@@ -11,6 +11,7 @@ const config: Config = {
 
   collectCoverageFrom: [
     "src/services/**/*.ts",
+    "src/controllers/**/*.ts",
     "!src/**/index.ts"
   ],
 

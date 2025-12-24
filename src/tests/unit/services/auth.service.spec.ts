@@ -135,7 +135,7 @@ describe("AuthService", () => {
   });
 
   describe("login", () => {
-    const loginRequest = {
+    const loginRequest :LoginRequest = {
       email: "john@example.com",
       password: "Password123!",
     };

@@ -1,20 +1,16 @@
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
 import { UserService } from "../../../services/userService";
 import User from "../../../models/User";
+import { connectTestDB, closeTestDB } from "../../setup/db";
 
 describe("UserService Integration Tests", () => {
-  let mongoServer: MongoMemoryServer;
   let userService: UserService;
 
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
-    await mongoose.connect(uri);
+    await connectTestDB();
   });
   afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    await closeTestDB();
   });
 
   beforeEach(async () => {
@@ -278,7 +274,8 @@ describe("UserService Integration Tests", () => {
 
     it("should delete user successfully", async () => {
       const result = await userService.deleteUser(testUser._id.toString());
-      expect(result.message).toBe("User deleted successfully");});
+      expect(result.message).toBe("User deleted successfully");
+    });
 
     it("should throw error when User not found", async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
