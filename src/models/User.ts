@@ -6,7 +6,6 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: 'user' | 'admin';
-  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
 const userSchema = new Schema<IUser>({
